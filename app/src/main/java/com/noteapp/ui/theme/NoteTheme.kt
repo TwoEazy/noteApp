@@ -1,23 +1,27 @@
 package com.noteapp.ui.theme
 
-
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Shapes
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val LightColorPalette = lightColors(
+private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF6200EE),
-    primaryVariant = Color(0xFF3700B3),
-    secondary = Color(0xFF03DAC6)
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFF3700B3),
+    onPrimaryContainer = Color.White,
+    secondary = Color(0xFF03DAC6),
+    onSecondary = Color.Black
 )
 
-private val DarkColorPalette = darkColors(
+private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFFBB86FC),
-    primaryVariant = Color(0xFF3700B3),
-    secondary = Color(0xFF03DAC6)
+    onPrimary = Color.Black,
+    primaryContainer = Color(0xFF3700B3),
+    onPrimaryContainer = Color.White,
+    secondary = Color(0xFF03DAC6),
+    onSecondary = Color.Black
 )
 
 @Composable
@@ -25,16 +29,15 @@ fun NoteTheme(
     darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
+    val colorScheme = if (darkTheme) {
+        DarkColorScheme
     } else {
-        LightColorPalette
+        LightColorScheme
     }
 
     MaterialTheme(
-        colors = colors,
+        colorScheme = colorScheme,
         typography = Typography,
-        shapes = Shapes,
         content = content
     )
 }

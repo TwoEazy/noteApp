@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.Navigator
 import com.noteapp.data.model.Note
 import com.noteapp.navigation.Navigator
 import com.noteapp.navigation.Screens

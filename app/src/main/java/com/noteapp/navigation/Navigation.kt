@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.noteapp.di.AppContainer
 import com.noteapp.ui.screen.AllNotesScreen
 import com.noteapp.ui.screen.CreateNoteScreen
+import com.noteapp.ui.screen.LoginScreen
 import com.noteapp.ui.screen.RegisterScreen
 import com.noteapp.viewmodel.AllNotesViewModel
 import com.noteapp.viewmodel.AllNotesViewModelFactory
