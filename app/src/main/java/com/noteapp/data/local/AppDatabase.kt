@@ -9,4 +9,4 @@ import com.noteapp.data.local.entity.NoteEntity
 @Database(entities = [NoteEntity::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
-}sd
+}
