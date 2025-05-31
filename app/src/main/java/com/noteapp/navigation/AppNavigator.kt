@@ -12,8 +12,16 @@ class AppNavigator(private val navController: NavHostController) : Navigator {
 
         navController.navigate(route) {
             launchSingleTop = true // Prevent multiple copies of the same destination
-
             restoreState = true
+        }
+    }
+
+    override fun navigateWithClearBackstack(screen: Screens, popUpToScreen: Screens, inclusive: Boolean) {
+        navController.navigate(screen.route) {
+            launchSingleTop = true
+            popUpTo(popUpToScreen.route) {
+                this.inclusive = inclusive
+            }
         }
     }
 

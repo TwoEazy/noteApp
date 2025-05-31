@@ -24,8 +24,8 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // Always start with AllNotesScreen
-                    val startDestination = Screens.AllNotes.route
+                    // Always start with LoginScreen
+                    val startDestination = Screens.Login.route
 
                     Navigation(
                         appContainer = appContainer,
@@ -36,10 +36,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // This method is no longer used for determining start destination
-    // but kept for other potential uses
+    // This method is kept for potential future use
     private fun isUserLoggedIn(): Boolean {
-        // Check SharedPreferences or SessionManager
         return appContainer.sessionManager.isLoggedIn()
     }
 }

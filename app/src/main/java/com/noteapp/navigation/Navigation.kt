@@ -59,7 +59,13 @@ fun Navigation(
                 onLogout = {
                     // Handle logout
                     appContainer.sessionManager.clearSession() // Clear session on logout
-                    navigator.navigateTo(Screens.Login)
+
+                    // Use the new navigation method to clear the back stack
+                    navigator.navigateWithClearBackstack(
+                        screen = Screens.Login,
+                        popUpToScreen = Screens.AllNotes,
+                        inclusive = true
+                    )
                 }
             )
         }
