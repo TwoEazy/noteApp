@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.noteapp.data.model.Note
+import com.noteapp.data.model.SessionManager
 import com.noteapp.repository.NoteRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +12,8 @@ import kotlinx.coroutines.launch
 
 
 class CreateNoteViewModel(
-    private val repository: NoteRepository
+    private val repository: NoteRepository,
+    private val sessionManager: SessionManager // Add SessionManager dependency
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<CreateNoteUiState>(CreateNoteUiState.Idle)
@@ -36,15 +38,19 @@ class CreateNoteViewModel(
             _uiState.value = CreateNoteUiState.Saving
 
             val currentTime = System.currentTimeMillis()
+            val userId = sessionManager.getUserId() // Get current user ID
+
             val note = _currentNote.value?.copy(
                 title = title,
                 content = content,
-                updatedAt = currentTime
+                updatedAt = currentTime,
+                userId = userId // Ensure userId is set when updating
             ) ?: Note(
                 title = title,
                 content = content,
                 createdAt = currentTime,
-                updatedAt = currentTime
+                updatedAt = currentTime,
+                userId = userId // Set userId for new notes
             )
 
             try {
@@ -70,12 +76,13 @@ sealed class CreateNoteUiState {
 }
 
 class CreateNoteViewModelFactory(
-    private val repository: NoteRepository
+    private val repository: NoteRepository,
+    private val sessionManager: SessionManager // Add SessionManager dependency
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CreateNoteViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CreateNoteViewModel(repository) as T
+            return CreateNoteViewModel(repository, sessionManager) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

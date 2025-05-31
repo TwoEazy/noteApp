@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NoteDao {
-    @Query("SELECT * FROM notes ORDER BY updated_at DESC")
-    fun getAllNotes(): Flow<List<NoteEntity>>
+    @Query("SELECT * FROM notes WHERE user_id = :userId ORDER BY updated_at DESC")
+    fun getAllNotes(userId: Int): Flow<List<NoteEntity>>
 
-    @Query("SELECT * FROM notes WHERE id = :id")
-    suspend fun getNoteById(id: Int): NoteEntity?
+    @Query("SELECT * FROM notes WHERE id = :id AND user_id = :userId")
+    suspend fun getNoteById(id: Int, userId: Int): NoteEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote(note: NoteEntity)
@@ -26,6 +26,6 @@ interface NoteDao {
     @Delete
     suspend fun deleteNote(note: NoteEntity)
 
-    @Query("DELETE FROM notes")
-    suspend fun deleteAllNotes()
+    @Query("DELETE FROM notes WHERE user_id = :userId")
+    suspend fun deleteAllNotes(userId: Int)
 }

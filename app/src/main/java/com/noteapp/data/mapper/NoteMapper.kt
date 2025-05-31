@@ -5,22 +5,22 @@ import com.noteapp.data.model.Note
 
 fun NoteEntity.toDomainModel(): Note {
     return Note(
-        id = this.id,
-        title = this.title,
-        content = this.content,
-        createdAt = this.createdAt,
-        updatedAt = this.updatedAt
+        id = id,
+        title = title,
+        content = content,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        userId = userId
     )
 }
 
 fun Note.toEntity(): NoteEntity {
     return NoteEntity(
-        id = this.id,
-        title = this.title,
-        content = this.content,
-        createdAt = this.createdAt,
-        updatedAt = this.updatedAt
+        id = id,
+        title = title,
+        content = content,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        userId = userId
     )
 }
-
-

@@ -15,7 +15,6 @@ import com.noteapp.ui.screen.RegisterScreen
 import com.noteapp.viewmodel.AllNotesViewModel
 import com.noteapp.viewmodel.AllNotesViewModelFactory
 import com.noteapp.viewmodel.CreateNoteViewModel
-import com.noteapp.viewmodel.CreateNoteViewModelFactory
 
 
 @Composable
@@ -59,6 +58,7 @@ fun Navigation(
                 navigator = navigator,
                 onLogout = {
                     // Handle logout
+                    appContainer.sessionManager.clearSession() // Clear session on logout
                     navigator.navigateTo(Screens.Login)
                 }
             )
@@ -75,8 +75,9 @@ fun Navigation(
         ) { backStackEntry ->
             val noteId = backStackEntry.arguments?.getInt("noteId") ?: 0
 
+            // Use the factory from appContainer that includes SessionManager
             val createNoteViewModel: CreateNoteViewModel = viewModel(
-                factory = CreateNoteViewModelFactory(appContainer.noteRepository)
+                factory = appContainer.createNoteViewModelFactory
             )
 
             CreateNoteScreen(
