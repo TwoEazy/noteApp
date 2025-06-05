@@ -40,7 +40,7 @@ The app follows **Clean Architecture** principles with **MVVM** pattern:
 - **Coroutines & Flow** - Asynchronous programming
 
 ### Backend Integration
-- **Retrofit** - HTTP client for API calls
+- **Retrofit** - HTTP client for API calls hosted on render.com
 - **OkHttp** - Network layer with logging
 - **Gson** - JSON serialization
 
