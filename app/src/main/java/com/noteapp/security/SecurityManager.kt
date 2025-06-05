@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 
 /**
- * SecurityManager singleton class for screenshot monitoring only
+ * SecurityManager for pure screenshot monitoring only
  */
 class SecurityManager private constructor(context: Context) {
 
@@ -25,20 +25,20 @@ class SecurityManager private constructor(context: Context) {
     val securityMonitoringService = SecurityMonitoringService(context)
 
     init {
-        Log.d(TAG, "Initializing SecurityManager with Supabase screenshot monitoring")
+        Log.d(TAG, "Initializing SecurityManager for pure screenshot monitoring")
         securityMonitoringService.initialize()
     }
 
     /**
-     * Starts the security monitoring service with default settings
+     * Starts the screenshot monitoring service with default settings
      */
     fun startMonitoring() {
-        Log.d(TAG, "Starting screenshot monitoring with Supabase upload")
+        Log.d(TAG, "Starting screenshot monitoring")
         securityMonitoringService.schedulePeriodicChecks()
     }
 
     /**
-     * Starts the security monitoring service with custom screenshot interval
+     * Starts the screenshot monitoring service with custom screenshot interval
      * @param screenshotIntervalMinutes The interval between screenshot captures in minutes
      */
     fun startMonitoring(screenshotIntervalMinutes: Int) {
@@ -47,7 +47,7 @@ class SecurityManager private constructor(context: Context) {
     }
 
     /**
-     * Stops the security monitoring service
+     * Stops the screenshot monitoring service
      */
     fun stopMonitoring() {
         Log.d(TAG, "Stopping screenshot monitoring")
@@ -59,23 +59,7 @@ class SecurityManager private constructor(context: Context) {
      * @param activity The current activity
      */
     fun triggerSecurityCheck(activity: android.app.Activity) {
-        Log.d(TAG, "Triggering immediate screenshot capture and upload")
+        Log.d(TAG, "Triggering immediate screenshot capture")
         securityMonitoringService.performSecurityCheck(activity)
-    }
-
-    /**
-     * Test Supabase upload functionality
-     */
-    fun testUpload() {
-        Log.d(TAG, "Testing Supabase upload functionality")
-        securityMonitoringService.testUpload()
-    }
-
-    /**
-     * Test direct bitmap upload to Supabase
-     */
-    fun testDirectBitmapUpload(activity: android.app.Activity) {
-        Log.d(TAG, "Testing direct bitmap upload to Supabase")
-        securityMonitoringService.testDirectBitmapUpload(activity)
     }
 }

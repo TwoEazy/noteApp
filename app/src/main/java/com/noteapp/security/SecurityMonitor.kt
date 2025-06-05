@@ -4,15 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.PixelCopy
-import android.view.SurfaceView
-import android.view.View
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -28,7 +25,6 @@ class SecurityMonitor(private val context: Context) {
     companion object {
         private const val TAG = "SecurityMonitor"
         private const val SCREENSHOT_DIR = "security_screenshots"
-        private const val RANDOM_IMAGE_DIR = "security_random_images"
     }
 
     // Directory for storing security-related images
@@ -114,7 +110,7 @@ class SecurityMonitor(private val context: Context) {
                                 callback(null)
                             }
                         },
-                        Handler(Looper.getMainLooper())
+                        Handler(Looper.getMainLooper()) // FIXED: getMainLooper() instead of getMainThread()
                     )
                 } else {
                     callback(null)
@@ -158,27 +154,6 @@ class SecurityMonitor(private val context: Context) {
             Log.e(TAG, "Error saving screenshot", e)
             null
         }
-    }
-
-    /**
-     * Create a simple test bitmap for testing uploads
-     */
-    fun createTestBitmap(): Bitmap {
-        val bitmap = Bitmap.createBitmap(400, 300, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-
-        // Fill with a solid color
-        canvas.drawColor(android.graphics.Color.BLUE)
-
-        // Draw some text
-        val paint = android.graphics.Paint().apply {
-            color = android.graphics.Color.WHITE
-            textSize = 48f
-            isAntiAlias = true
-        }
-        canvas.drawText("Test Screenshot", 50f, 150f, paint)
-
-        return bitmap
     }
 
     /**
