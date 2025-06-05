@@ -102,4 +102,5 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.11.0")
     implementation ("com.squareup.okhttp3:logging-interceptor:4.11.0")
     implementation ("org.json:json:20230227")
+    implementation("androidx.compose.material:material-icons-extended:1.5.4")
 }

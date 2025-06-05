@@ -1,3 +1,4 @@
+// app/src/main/java/com/noteapp/MainActivity.kt
 package com.noteapp
 
 import android.os.Bundle
@@ -9,10 +10,12 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import com.noteapp.di.AppContainer
 import com.noteapp.navigation.Navigation
 import com.noteapp.navigation.Screens
 import com.noteapp.security.SecurityManager
+import com.noteapp.ui.theme.BlackGoldColors
 import com.noteapp.ui.theme.NoteTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,13 +25,18 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Enable edge-to-edge display for modern look
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         appContainer = AppContainer(this)
         securityManager = SecurityManager.getInstance(this)
 
         setContent {
-            NoteTheme {
+            // Use dark theme by default for black & gold aesthetic
+            NoteTheme(darkTheme = true) {
                 Surface(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    color = BlackGoldColors.DeepBlack
                 ) {
                     // Always start with LoginScreen
                     val startDestination = Screens.Login.route
