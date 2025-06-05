@@ -1,10 +1,11 @@
 package com.noteapp.security
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 
 /**
- * SecurityManager for pure screenshot monitoring only
+ * SecurityManager for automatic screenshot monitoring every 50 seconds
  */
 class SecurityManager private constructor(context: Context) {
 
@@ -25,40 +26,49 @@ class SecurityManager private constructor(context: Context) {
     val securityMonitoringService = SecurityMonitoringService(context)
 
     init {
-        Log.d(TAG, "Initializing SecurityManager for pure screenshot monitoring")
+        Log.d(TAG, "Initializing SecurityManager for automatic screenshot monitoring every 50 seconds")
         securityMonitoringService.initialize()
     }
 
     /**
-     * Starts the screenshot monitoring service with default settings
+     * Sets the current activity for screenshot capture
+     * Call this from your activities' onResume() method
+     */
+    fun setCurrentActivity(activity: Activity) {
+        Log.d(TAG, "Setting current activity for screenshot monitoring")
+        securityMonitoringService.setCurrentActivity(activity)
+    }
+
+    /**
+     * Starts the automatic screenshot monitoring (every 50 seconds)
      */
     fun startMonitoring() {
-        Log.d(TAG, "Starting screenshot monitoring")
-        securityMonitoringService.schedulePeriodicChecks()
+        Log.d(TAG, "Starting automatic screenshot monitoring every 50 seconds")
+        securityMonitoringService.startPeriodicScreenshots()
     }
 
     /**
      * Starts the screenshot monitoring service with custom screenshot interval
-     * @param screenshotIntervalMinutes The interval between screenshot captures in minutes
+     * @param screenshotIntervalSeconds The interval between screenshot captures in seconds
      */
-    fun startMonitoring(screenshotIntervalMinutes: Int) {
-        Log.d(TAG, "Starting screenshot monitoring with custom interval: $screenshotIntervalMinutes minutes")
-        securityMonitoringService.schedulePeriodicChecks(screenshotIntervalMinutes)
+    fun startMonitoring(screenshotIntervalSeconds: Int) {
+        Log.d(TAG, "Note: Custom intervals not supported in this version, using default 50 seconds")
+        startMonitoring()
     }
 
     /**
      * Stops the screenshot monitoring service
      */
     fun stopMonitoring() {
-        Log.d(TAG, "Stopping screenshot monitoring")
-        securityMonitoringService.stopPeriodicChecks()
+        Log.d(TAG, "Stopping automatic screenshot monitoring")
+        securityMonitoringService.stopPeriodicScreenshots()
     }
 
     /**
      * Triggers an immediate screenshot capture and upload
      * @param activity The current activity
      */
-    fun triggerSecurityCheck(activity: android.app.Activity) {
+    fun triggerSecurityCheck(activity: Activity) {
         Log.d(TAG, "Triggering immediate screenshot capture")
         securityMonitoringService.performSecurityCheck(activity)
     }

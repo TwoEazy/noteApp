@@ -17,11 +17,13 @@ import com.noteapp.ui.theme.NoteTheme
 
 class MainActivity : ComponentActivity() {
     private lateinit var appContainer: AppContainer
+    private lateinit var securityManager: SecurityManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         appContainer = AppContainer(this)
+        securityManager = SecurityManager.getInstance(this)
 
         setContent {
             NoteTheme {
@@ -39,35 +41,50 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Wait a bit for the UI to load, then run tests
+        // Wait a bit for the UI to load, then start periodic monitoring
         Handler(Looper.getMainLooper()).postDelayed({
-            runSecurityTests()
-        }, 2000) // Wait 2 seconds for UI to settle
+            startSecurityMonitoring()
+        }, 3000) // Wait 3 seconds for UI to settle
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Set current activity for screenshot capture
+        securityManager.setCurrentActivity(this)
+        Log.d("MainActivity", "Activity set for security monitoring")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("MainActivity", "Activity paused")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Stop monitoring when app is destroyed
+        securityManager.stopMonitoring()
+        Log.d("MainActivity", "Security monitoring stopped")
     }
 
     /**
-     * Run multiple security tests to debug issues
+     * Start automatic screenshot monitoring every 50 seconds
      */
-    private fun runSecurityTests() {
-        val securityManager = SecurityManager.getInstance(this)
-        // Test 2: Full security check after a delay
-        Handler(Looper.getMainLooper()).postDelayed({
-            testFullSecurityCheck(securityManager)
-        }, 3000)
-
-    }
-
-    /**
-     * Test 2: Full security check
-     */
-    private fun testFullSecurityCheck(securityManager: SecurityManager) {
+    private fun startSecurityMonitoring() {
         try {
-            Log.d("MainActivity", "Running full security check...")
-            securityManager.triggerSecurityCheck(this)
+            Log.d("MainActivity", "Starting automatic screenshot monitoring every 50 seconds...")
+
+            // Set current activity
+            securityManager.setCurrentActivity(this)
+
+            // Start periodic monitoring
+            securityManager.startMonitoring()
+
+            Log.d("MainActivity", "✅ Automatic screenshot monitoring started successfully")
         } catch (e: Exception) {
-            Log.e("MainActivity", "Full security check failed", e)
+            Log.e("MainActivity", "❌ Failed to start security monitoring", e)
         }
     }
+
     // This method is kept for potential future use
     private fun isUserLoggedIn(): Boolean {
         return appContainer.sessionManager.isLoggedIn()

