@@ -85,7 +85,7 @@ fun LoginScreen(
                     modifier = Modifier.padding(bottom = 48.dp)
                 ) {
                     Text(
-                        text = "✨ NoteApp",
+                        text = "✨Goldy Notes✨",
                         style = MaterialTheme.typography.displayMedium,
                         color = BlackGoldColors.Gold,
                         textAlign = TextAlign.Center

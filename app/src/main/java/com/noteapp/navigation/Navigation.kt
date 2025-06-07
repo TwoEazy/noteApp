@@ -30,7 +30,11 @@ fun Navigation(
             LoginScreen(
                 viewModel = appContainer.loginViewModel,
                 onLoginSuccess = {
-                    navigator.navigateTo(Screens.AllNotes)
+                    navigator.navigateWithClearBackstack(
+                        screen = Screens.AllNotes,
+                        popUpToScreen = Screens.Login,
+                        inclusive = true
+                    )
                 },
                 onSignUpClick = {
                     navigator.navigateTo(Screens.Register)
@@ -43,24 +47,25 @@ fun Navigation(
                 viewModel = appContainer.registerViewModel,
                 navigator = navigator,
                 onRegisterSuccess = {
-                    navigator.navigateTo(Screens.Login)
+                    navigator.navigateWithClearBackstack(
+                        screen = Screens.Login,
+                        popUpToScreen = Screens.Register,
+                        inclusive = true
+                    )
                 }
             )
         }
 
         composable(Screens.AllNotes.route) {
             val allNotesViewModel: AllNotesViewModel = viewModel(
-                factory = AllNotesViewModelFactory(appContainer.noteRepository)
+                factory = appContainer.allNotesViewModelFactory // Use the new factory
             )
 
             AllNotesScreen(
                 viewModel = allNotesViewModel,
                 navigator = navigator,
                 onLogout = {
-                    // Handle logout
-                    appContainer.sessionManager.clearSession() // Clear session on logout
-
-                    // Use the new navigation method to clear the back stack
+                    // Navigate to login and clear the entire back stack
                     navigator.navigateWithClearBackstack(
                         screen = Screens.Login,
                         popUpToScreen = Screens.AllNotes,
@@ -81,7 +86,6 @@ fun Navigation(
         ) { backStackEntry ->
             val noteId = backStackEntry.arguments?.getInt("noteId") ?: 0
 
-            // Use the factory from appContainer that includes SessionManager
             val createNoteViewModel: CreateNoteViewModel = viewModel(
                 factory = appContainer.createNoteViewModelFactory
             )

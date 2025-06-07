@@ -6,6 +6,7 @@ import com.noteapp.data.local.AppDatabase
 import com.noteapp.data.model.SessionManager
 import com.noteapp.repository.AuthRepository
 import com.noteapp.repository.NoteRepository
+import com.noteapp.viewmodel.AllNotesViewModelFactory
 import com.noteapp.viewmodel.CreateNoteViewModel
 import com.noteapp.viewmodel.CreateNoteViewModelFactory
 import com.noteapp.viewmodel.LoginViewModel
@@ -17,7 +18,7 @@ class AppContainer(context: Context) {
         AppDatabase::class.java,
         "note_database"
     )
-        .addMigrations(AppDatabase.MIGRATION_1_2) // Add migration
+        .addMigrations(AppDatabase.MIGRATION_1_2)
         .build()
 
     // Create DAOs
@@ -25,7 +26,7 @@ class AppContainer(context: Context) {
 
     // Create repositories
     val sessionManager = SessionManager(context)
-    val noteRepository = NoteRepository(noteDao, sessionManager) // Pass sessionManager
+    val noteRepository = NoteRepository(noteDao, sessionManager)
     val authRepository = AuthRepository()
 
     // Create ViewModels
@@ -34,4 +35,7 @@ class AppContainer(context: Context) {
 
     // Create ViewModel Factory for CreateNoteViewModel
     val createNoteViewModelFactory = CreateNoteViewModelFactory(noteRepository, sessionManager)
+
+    // Create ViewModel Factory for AllNotesViewModel
+    val allNotesViewModelFactory = AllNotesViewModelFactory(noteRepository, sessionManager)
 }

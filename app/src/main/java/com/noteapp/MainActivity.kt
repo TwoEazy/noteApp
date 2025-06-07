@@ -25,21 +25,24 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Enable edge-to-edge display for modern look
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         appContainer = AppContainer(this)
         securityManager = SecurityManager.getInstance(this)
 
         setContent {
-            // Use dark theme by default for black & gold aesthetic
             NoteTheme(darkTheme = true) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = BlackGoldColors.DeepBlack
                 ) {
-                    // Always start with LoginScreen
-                    val startDestination = Screens.Login.route
+                    // Check if user is logged in to determine start destination
+                    val startDestination = if (appContainer.sessionManager.isLoggedIn() &&
+                        appContainer.sessionManager.getUserId() != -1) {
+                        Screens.AllNotes.route
+                    } else {
+                        Screens.Login.route
+                    }
 
                     Navigation(
                         appContainer = appContainer,
@@ -49,12 +52,11 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Wait a bit for the UI to load, then start periodic monitoring
+        // Start security monitoring after UI setup
         Handler(Looper.getMainLooper()).postDelayed({
             startSecurityMonitoring()
-        }, 3000) // Wait 3 seconds for UI to settle
+        }, 3000)
     }
-
     override fun onResume() {
         super.onResume()
         // Set current activity for screenshot capture

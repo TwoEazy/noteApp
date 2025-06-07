@@ -161,7 +161,7 @@ fun RegisterScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
                 ) {
                     RegisterContent(
-                        onRegisterClick = { email, password, firstName, lastName, birthDate, gender ->
+                        onRegisterClick = { email, password, firstName, lastName, birthDate ->
                             viewModel.register(email, password, firstName, lastName)
                         },
                         modifier = Modifier
@@ -257,7 +257,7 @@ fun RegisterScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterContent(
-    onRegisterClick: (String, String, String, String, String, String) -> Unit,
+    onRegisterClick: (String, String, String, String, String ) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var email by remember { mutableStateOf("") }
@@ -265,10 +265,8 @@ fun RegisterContent(
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var birthDate by remember { mutableStateOf("") }
-    var gender by remember { mutableStateOf("male") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val genders = listOf("male", "female")
 
     Column(
         modifier = modifier,
@@ -440,69 +438,12 @@ fun RegisterContent(
             )
         )
 
-        // Gender Selection
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = CustomShapes.textFieldShape,
-            colors = CardDefaults.cardColors(
-                containerColor = BlackGoldColors.DarkGray.copy(alpha = 0.3f)
-            ),
-            border = CardDefaults.outlinedCardBorder().copy(
-                brush = Brush.linearGradient(
-                    colors = listOf(BlackGoldColors.MediumGray, BlackGoldColors.Gold.copy(alpha = 0.3f))
-                )
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "Gender",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = BlackGoldColors.LightGold.copy(alpha = 0.7f),
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    genders.forEach { genderOption ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .selectable(
-                                    selected = gender == genderOption,
-                                    onClick = { gender = genderOption },
-                                    role = Role.RadioButton
-                                )
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            RadioButton(
-                                selected = gender == genderOption,
-                                onClick = { gender = genderOption },
-                                colors = RadioButtonDefaults.colors(
-                                    selectedColor = BlackGoldColors.Gold,
-                                    unselectedColor = BlackGoldColors.MediumGray
-                                )
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = genderOption.replaceFirstChar { it.uppercase() },
-                                color = BlackGoldColors.LightGold,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
         Spacer(modifier = Modifier.height(8.dp))
 
         // Register Button
         Button(
             onClick = {
-                onRegisterClick(email, password, firstName, lastName, birthDate, gender)
+                onRegisterClick(email, password, firstName, lastName, birthDate )
             },
             modifier = Modifier
                 .fillMaxWidth()

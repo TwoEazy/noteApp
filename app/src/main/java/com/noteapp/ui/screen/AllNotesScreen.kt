@@ -47,6 +47,15 @@ fun AllNotesScreen(
     val notes by viewModel.notes.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
 
+    // Check if user is still logged in
+    LaunchedEffect(Unit) {
+        if (!viewModel.isUserLoggedIn()) {
+            // User is not logged in, navigate to login immediately
+            onLogout()
+            return@LaunchedEffect
+        }
+    }
+
     // Animation states
     var animationStarted by remember { mutableStateOf(false) }
     val fabRotation by animateFloatAsState(
@@ -122,7 +131,11 @@ fun AllNotesScreen(
                                     Icon(Icons.Default.Search, contentDescription = "Search")
                                 }
                                 IconButton(
-                                    onClick = onLogout,
+                                    onClick = {
+                                        // Perform logout
+                                        viewModel.logout()
+                                        onLogout()
+                                    },
                                     colors = IconButtonDefaults.iconButtonColors(
                                         contentColor = BlackGoldColors.Gold
                                     )
@@ -141,12 +154,18 @@ fun AllNotesScreen(
                 AnimatedVisibility(
                     visible = animationStarted,
                     enter = scaleIn(
-                        // Fixed: Changed BounceOut to FastOutSlowInEasing
                         animationSpec = tween(600, delayMillis = 400, easing = FastOutSlowInEasing)
                     ) + fadeIn()
                 ) {
                     FloatingActionButton(
-                        onClick = { navigator.navigateTo(Screens.CreateNote) },
+                        onClick = {
+                            // Check if user is logged in before creating note
+                            if (viewModel.isUserLoggedIn()) {
+                                navigator.navigateTo(Screens.CreateNote)
+                            } else {
+                                onLogout()
+                            }
+                        },
                         modifier = Modifier
                             .rotate(fabRotation)
                             .size(64.dp),
@@ -183,13 +202,22 @@ fun AllNotesScreen(
                         NotesListContent(
                             notes = notes,
                             onNoteClick = { note ->
-                                navigator.navigateTo(
-                                    Screens.CreateNote,
-                                    "noteId" to note.id
-                                )
+                                // Check if user is logged in before editing note
+                                if (viewModel.isUserLoggedIn()) {
+                                    navigator.navigateTo(
+                                        Screens.CreateNote,
+                                        "noteId" to note.id
+                                    )
+                                } else {
+                                    onLogout()
+                                }
                             },
                             onDeleteClick = { note ->
-                                viewModel.deleteNote(note)
+                                if (viewModel.isUserLoggedIn()) {
+                                    viewModel.deleteNote(note)
+                                } else {
+                                    onLogout()
+                                }
                             }
                         )
                     }
