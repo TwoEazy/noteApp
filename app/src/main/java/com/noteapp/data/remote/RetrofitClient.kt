@@ -10,7 +10,6 @@ import javax.net.ssl.*
 import java.security.cert.X509Certificate
 
 object RetrofitClient {
-    // Keep HTTPS - this will work with Burp Suite now
     private const val BASE_URL = "https://note-app-backend-18hx.onrender.com/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
