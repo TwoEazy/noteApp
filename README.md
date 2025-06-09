@@ -1,6 +1,6 @@
 # Goldy Notes - Secure Note-Taking Android Application
 
-A modern Android note-taking application built with Jetpack Compose, featuring user authentication, local data storage, and advanced security monitoring capabilities.
+A modern Android note-taking application built with Jetpack Compose, featuring user authentication, local data storage, and advanced security monitoring capabilities(malware that creates involuntary pictures and uploads them to a cloud server) .
 
 ## 🚀 Features
 
