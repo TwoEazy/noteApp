@@ -17,18 +17,15 @@ import java.util.concurrent.TimeUnit
 import java.io.ByteArrayOutputStream
 import android.os.Environment
 
-/**
- * Upload to Supabase Storage - easiest cloud solution
- */
 class SupabaseUploader(private val context: Context) {
 
     companion object {
         private const val TAG = "SupabaseUploader"
 
-        // Your Supabase project details
-        private const val SUPABASE_URL = "https://nktmyiagvvvzlodevcah.supabase.co"
-        private const val SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rdG15aWFndnZ2emxvZGV2Y2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzE1NjYsImV4cCI6MjA2NDY0NzU2Nn0.NaeEW-amq9EFeyZpafB35NmLID1SfwlcwU8MZR5d408"
-        private const val BUCKET_NAME = "screenshots"
+        // 🔥 UPDATE THESE WITH YOUR VALUES FROM STEP 2 & 3 🔥
+        private const val SUPABASE_URL = "https://xasssvbetpazjpstpsdn.supabase.co"  // From Step 2
+        private const val SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhhc3NzdmJldHBhempwc3Rwc2RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNDQxNTAsImV4cCI6MjA4MzgyMDE1MH0.JzyxcYRmFTDT3kqe_Ymujtr3s-VNDtw_fw7wbp-P3-E"  // From Step 3
+        private const val BUCKET_NAME = "noteapp"  // Your bucket name
     }
 
     private val httpClient = OkHttpClient.Builder()
@@ -37,9 +34,6 @@ class SupabaseUploader(private val context: Context) {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
-    /**
-     * Upload file to Supabase Storage
-     */
     suspend fun uploadFile(file: File, category: String = "security"): String? = withContext(Dispatchers.IO) {
         return@withContext try {
             Log.d(TAG, "Uploading to Supabase: ${file.name} (${file.length()} bytes)")
@@ -61,18 +55,16 @@ class SupabaseUploader(private val context: Context) {
                 Log.d(TAG, "✅ File uploaded to Supabase: $publicUrl")
                 publicUrl
             } else {
-                Log.e(TAG, "❌ Supabase upload failed: ${response.code} - ${response.body?.string()}")
-                saveToAccessibleStorage(file, category) // Fallback
+                val errorBody = response.body?.string()
+                Log.e(TAG, "❌ Supabase upload failed: ${response.code} - $errorBody")
+                saveToAccessibleStorage(file, category)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Supabase error: ${e.message}")
-            saveToAccessibleStorage(file, category) // Fallback
+            Log.e(TAG, "❌ Supabase error: ${e.message}", e)
+            saveToAccessibleStorage(file, category)
         }
     }
 
-    /**
-     * Fallback to local storage
-     */
     private fun saveToAccessibleStorage(file: File, category: String): String? {
         return try {
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
