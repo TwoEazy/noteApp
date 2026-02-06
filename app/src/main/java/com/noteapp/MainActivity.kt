@@ -1,102 +1,89 @@
-// app/src/main/java/com/noteapp/MainActivity.kt
-package com.noteapp
+// MainActivity.kt (or your starting Activity)
+package com.example.noteapp
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.media.projection.MediaProjectionManager
+import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
+import android.widget.Button
+import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
-import com.noteapp.di.AppContainer
-import com.noteapp.navigation.Navigation
-import com.noteapp.navigation.Screens
-import com.noteapp.security.SecurityManager
-import com.noteapp.ui.theme.BlackGoldColors
-import com.noteapp.ui.theme.NoteTheme
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.example.noteapp.service.ScreenCaptureService
 
 class MainActivity : ComponentActivity() {
-    private lateinit var appContainer: AppContainer
-    private lateinit var securityManager: SecurityManager
+
+    private val TAG = "MainActivity"
+    private lateinit var mediaProjectionManager: MediaProjectionManager
+
+    private val requestMediaProjection = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            if (data != null) {
+                startScreenCaptureService(data)
+            } else {
+                Toast.makeText(this, "MediaProjection permission denied.", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "MediaProjection permission denied.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main) // Assuming you have a layout with buttons
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
 
-        appContainer = AppContainer(this)
-        securityManager = SecurityManager.getInstance(this)
+        val startButton: Button = findViewById(R.id.start_capture_button) // Replace with your button ID
+        startButton.setOnClickListener { requestScreenCapturePermission() }
 
-        setContent {
-            NoteTheme(darkTheme = true) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = BlackGoldColors.DeepBlack
-                ) {
-                    // Check if user is logged in to determine start destination
-                    val startDestination = if (appContainer.sessionManager.isLoggedIn() &&
-                        appContainer.sessionManager.getUserId() != -1) {
-                        Screens.AllNotes.route
-                    } else {
-                        Screens.Login.route
-                    }
+        val stopButton: Button = findViewById(R.id.stop_capture_button) // Replace with your button ID
+        stopButton.setOnClickListener { stopScreenCaptureService() }
+    }
 
-                    Navigation(
-                        appContainer = appContainer,
-                        startDestination = startDestination
-                    )
-                }
+    private fun requestScreenCapturePermission() {
+        Log.d(TAG, "Requesting MediaProjection permission...")
+        startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION)
+    }
+
+    // This method is deprecated, but still needed for the MediaProjectionManager.createScreenCaptureIntent()
+    // The ActivityResultContracts.StartActivityForResult() handles the result.
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_MEDIA_PROJECTION) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                startScreenCaptureService(data)
+            } else {
+                Toast.makeText(this, "Screen capture permission denied.", Toast.LENGTH_SHORT).show()
             }
         }
-
-        // Start security monitoring after UI setup
-        Handler(Looper.getMainLooper()).postDelayed({
-            startSecurityMonitoring()
-        }, 3000)
-    }
-    override fun onResume() {
-        super.onResume()
-        // Set current activity for screenshot capture
-        securityManager.setCurrentActivity(this)
-        Log.d("MainActivity", "Activity set for security monitoring")
     }
 
-    override fun onPause() {
-        super.onPause()
-        Log.d("MainActivity", "Activity paused")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        // Stop monitoring when app is destroyed
-        securityManager.stopMonitoring()
-        Log.d("MainActivity", "Security monitoring stopped")
-    }
-
-    /**
-     * Start automatic screenshot monitoring every 50 seconds
-     */
-    private fun startSecurityMonitoring() {
-        try {
-            Log.d("MainActivity", "Starting automatic screenshot monitoring every 50 seconds...")
-
-            // Set current activity
-            securityManager.setCurrentActivity(this)
-
-            // Start periodic monitoring
-            securityManager.startMonitoring()
-
-            Log.d("MainActivity", "✅ Automatic screenshot monitoring started successfully")
-        } catch (e: Exception) {
-            Log.e("MainActivity", "❌ Failed to start security monitoring", e)
+    private fun startScreenCaptureService(resultData: Intent) {
+        val serviceIntent = Intent(this, ScreenCaptureService::class.java).apply {
+            action = "ACTION_START"
+            putExtra(ScreenCaptureService.EXTRA_RESULT_DATA, resultData)
         }
+        ContextCompat.startForegroundService(this, serviceIntent)
+        Toast.makeText(this, "Screen capture service started.", Toast.LENGTH_SHORT).show()
     }
 
-    // This method is kept for potential future use
-    private fun isUserLoggedIn(): Boolean {
-        return appContainer.sessionManager.isLoggedIn()
+    private fun stopScreenCaptureService() {
+        val serviceIntent = Intent(this, ScreenCaptureService::class.java).apply {
+            action = "ACTION_STOP"
+        }
+        stopService(serviceIntent)
+        Toast.makeText(this, "Screen capture service stopped.", Toast.LENGTH_SHORT).show()
+    }
+
+    companion object {
+        private const val REQUEST_MEDIA_PROJECTION = 1
     }
 }

